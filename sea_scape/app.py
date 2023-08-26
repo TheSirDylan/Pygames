@@ -41,8 +41,8 @@ crate_rect = crate_surf.get_rect(midbottom = (randint(25,775), -50))
 
 
 #enemy images and rects
-cb0 = pygame.image.load('graphics/enemy/cb.png').convert_alpha()
-cb_rect = cb0.get_rect(midbottom = (400, 500))
+cb_surf = pygame.image.load('graphics/enemy/cb.png').convert_alpha()
+cb_rect = cb_surf.get_rect(midbottom = (400, 500))
 
 kraken_0 = pygame.image.load('graphics/enemy/k1.tiff').convert_alpha()
 kraken_1 = pygame.image.load('graphics/enemy/k2.tiff').convert_alpha()
@@ -52,18 +52,57 @@ k_index = 0
 k_surf = k[k_index]
 k_rect = k_surf.get_rect(midbottom = (700, 375))
 
+rk_surf = pygame.transform.flip(k_surf, True, False)
+rk_rect = rk_surf.get_rect(midbottom = (100, 375))
+
 #enemy logic
 enemy_timer = pygame.USEREVENT + 1
-pygame.time.set_timer(enemy_timer, 900)
+pygame.time.set_timer(enemy_timer, 1000)
 
+cb_rect_list = []
+k_rect_list = []
+
+def cb_movement(cb_list):
+    global health
+    ct = int((pygame.time.get_ticks() - start_time)/ 1000)
+    if cb_list:
+        for cb_rect in cb_list:
+            cb_rect.y += 4
+
+            screen.blit(cb_surf, cb_rect)
+            if ship_rect.colliderect(cb_rect):
+                health -= 1
+        cb_list = [cb for cb in cb_list if ship_rect.colliderect(cb) == False]
+        cb_list = [cb for cb in cb_list if cb.y < 500]
+        return cb_list
+
+    else:
+        return []
+
+def k_movement(k_list):
+    ct = int((pygame.time.get_ticks() - start_time)/ 1000)
+    if k_list:
+        for k_rect in k_list:
+            if k_rect.left > ship_rect.x:
+                k_rect.x -= 4
+                screen.blit(k_surf, k_rect)
+            else:
+                k_rect.x += 4
+                screen.blit(rk_surf, rk_rect)
+            k_list = [k for k in k_list if ship_rect.colliderect(k) == False]
+
+        return k_list
+    else:
+        return []
 
 # Animation for moving kraken
 def k_sway():
-    global k_surf, k_index
+    global k_surf, k_index, rk_surf
     k_index += 0.1
     if k_index >= len(k):
         k_index = 0
     k_surf = k[int(k_index)]
+    rk_surf = pygame.transform.flip(k_surf, True, False)
 
 
 # Background images + score and health images 
@@ -98,9 +137,6 @@ def bg_animation():
     bgd = bg[int(bg_index)]
 
 
-#Keepimg track of time
-def keep_time():
-    ct = pygame.time.get_ticks() - start_time
 
 running = True
 while running:
@@ -114,7 +150,11 @@ while running:
                 if event.key == pygame.K_SPACE:
                     print('fire')
             if event.type == enemy_timer:
-                print(1)
+                cb_rect_list.append(cb_surf.get_rect(midbottom = (randint(25, 775), randint(-200, -30))))
+                if randint(0,2):
+                    k_rect_list.append(k_surf.get_rect(midbottom = (randint(1200, 1800), 375)))
+                else:
+                    k_rect_list.append(rk_surf.get_rect(midbottom = (randint(-1000, -300), 375)))
         else:
             #game start
             if event.type == pygame.KEYDOWN:
@@ -131,12 +171,9 @@ while running:
     bg_animation()
     screen.blit(bgd,(0,0))
     screen.blit(score_surf,(0,0))
-    screen.blit(ship_surf, ship_rect)
     screen.blit(crate_surf, crate_rect)
     k_sway()
-    screen.blit(k_surf, k_rect)
     scored()
-    keep_time()
     if game_active == True:
         if health == 3:
             screen.blit(hp_surf, (20,70))
@@ -155,9 +192,9 @@ while running:
              cb_rect.y = -50
              crate_rect.y =-50
         screen.blit(ship_surf, ship_rect)
-        screen.blit(cb0, cb_rect)
-        cb_rect.y += 4
-        crate_rect.y +=4
+        cb_rect_list = cb_movement(cb_rect_list)
+        k_rect_list = k_movement(k_rect_list)
+        screen.blit(ship_surf, ship_rect)
 
         #cannonball reinitialize and motion
         if cb_rect.y >= 500:
@@ -168,11 +205,6 @@ while running:
         if crate_rect.y >= 500:
             crate_rect.y = -50
             crate_rect.x = randint(25, 775)
-
-        # Ship collides with cannonball
-        if ship_rect.colliderect(cb_rect):
-            health -= 1
-            cb_rect.y = 500
 
         #ship collides with crate
         scored()
@@ -187,6 +219,9 @@ while running:
         screen.blit(line6_surf, (250, 175))
         screen.blit(line7_surf, (250, 195))
         screen.blit(line8_surf, (290, 220))
+        screen.blit(k_surf, k_rect)
+        screen.blit(rk_surf, rk_rect)
+        screen.blit(ship_surf, ship_rect)
         
     pygame.display.update()
     clock.tick(60)
