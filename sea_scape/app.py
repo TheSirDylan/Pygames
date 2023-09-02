@@ -1,8 +1,8 @@
 import pygame
 from random import randint
 
-
-
+ocean= [4,4,4,4,3,3,3,3,2,2,2,2,1,1,1,1,0,0,0,0,-1,-1,-1,-1,-2,-2,-2,-2,-1,-1,-1,-1,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3]
+crate_loop = 0
 score = 0
 health = 3
 game_active = False
@@ -163,10 +163,10 @@ while running:
                     health = 3
                     score = 0
                     start_time = pygame.time.get_ticks()
-    if event.type == pygame.KEYDOWN:
-        if event.key == pygame.K_LEFT and ship_rect.x >= 25:
-                ship_rect.x -= 3
-        elif event.key == pygame.K_RIGHT and ship_rect.x <= 775:
+    user_input = pygame.key.get_pressed()
+    if user_input[pygame.K_LEFT] and ship_rect.x >= 25:
+        ship_rect.x -= 3
+    if user_input[pygame.K_RIGHT] and ship_rect.x <= 775:
                 ship_rect.x += 3
     bg_animation()
     screen.blit(bgd,(0,0))
@@ -196,15 +196,16 @@ while running:
         k_rect_list = k_movement(k_rect_list)
         screen.blit(ship_surf, ship_rect)
 
-        #cannonball reinitialize and motion
-        if cb_rect.y >= 500:
-            cb_rect.y = -50
-            cb_rect.x = (ship_rect.x + 40)
-
-        #crate reinitialize
+        #crate reinitialize and movement logic
         if crate_rect.y >= 500:
             crate_rect.y = -50
             crate_rect.x = randint(25, 775)
+        if crate_loop >= len(ocean):
+            crate_loop = 0
+        else:
+            crate_rect.y += ocean[crate_loop]
+            crate_loop += 1
+
 
         #ship collides with crate
         scored()
