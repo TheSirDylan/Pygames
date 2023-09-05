@@ -1,8 +1,9 @@
 import pygame
 from random import randint
 
-ocean= [4,4,4,4,3,3,3,3,2,2,2,2,1,1,1,1,0,0,0,0,-1,-1,-1,-1,-2,-2,-2,-2,-1,-1,-1,-1,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3]
+ocean= [6,5,5,4,3,2,1,0,-1,-2,-1,0,1,2,3,4]
 crate_loop = 0
+freq_loop = 0
 score = 0
 health = 3
 game_active = False
@@ -38,6 +39,7 @@ ship_rect = ship_surf.get_rect(midbottom = (400, 350))
 #crate image and rect
 crate_surf = pygame.image.load('graphics/help/crate.png').convert_alpha()
 crate_rect = crate_surf.get_rect(midbottom = (randint(25,775), -50))
+
 
 
 #enemy images and rects
@@ -171,7 +173,6 @@ while running:
     bg_animation()
     screen.blit(bgd,(0,0))
     screen.blit(score_surf,(0,0))
-    screen.blit(crate_surf, crate_rect)
     k_sway()
     scored()
     if game_active == True:
@@ -196,16 +197,23 @@ while running:
         k_rect_list = k_movement(k_rect_list)
         screen.blit(ship_surf, ship_rect)
 
-        #crate reinitialize and movement logic
+        #crate reinitialize and movement logic 
         if crate_rect.y >= 500:
             crate_rect.y = -50
             crate_rect.x = randint(25, 775)
         if crate_loop >= len(ocean):
             crate_loop = 0
-        else:
+        cs = float(((100 + ((ocean[crate_loop]*5)))/100))
+        crate_surf = pygame.image.load('graphics/help/crate.png').convert_alpha()
+        crate_surf = pygame.transform.smoothscale_by(crate_surf, cs)    
+        if freq_loop == 0:
             crate_rect.y += ocean[crate_loop]
             crate_loop += 1
-
+            freq_loop = 4
+        else: 
+            crate_rect.y += ocean[crate_loop]
+            freq_loop -=1
+        screen.blit(crate_surf, crate_rect)
 
         #ship collides with crate
         scored()
