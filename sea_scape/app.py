@@ -1,7 +1,7 @@
 import pygame
 from random import randint
 
-ocean= [6,5,5,4,3,2,1,0,-1,-2,-1,0,1,2,3,4]
+ocean= [6,5,4,3,2,1,0,-1,-2,-1,0,1,2,3,4]
 crate_loop = 0
 freq_loop = 0
 score = 0
@@ -166,9 +166,9 @@ while running:
                     score = 0
                     start_time = pygame.time.get_ticks()
     user_input = pygame.key.get_pressed()
-    if user_input[pygame.K_LEFT] and ship_rect.x >= 25:
+    if user_input[pygame.K_LEFT] and ship_rect.x >= -25:
         ship_rect.x -= 3
-    if user_input[pygame.K_RIGHT] and ship_rect.x <= 775:
+    if user_input[pygame.K_RIGHT] and ship_rect.x <= 725:
                 ship_rect.x += 3
     bg_animation()
     screen.blit(bgd,(0,0))
@@ -209,7 +209,7 @@ while running:
         if freq_loop == 0:
             crate_rect.y += ocean[crate_loop]
             crate_loop += 1
-            freq_loop = 4
+            freq_loop = 6
         else: 
             crate_rect.y += ocean[crate_loop]
             freq_loop -=1
