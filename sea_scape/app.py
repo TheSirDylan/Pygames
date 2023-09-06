@@ -3,6 +3,7 @@ from random import randint
 
 ocean= [6,5,4,3,2,1,0,-1,-2,-1,0,1,2,3,4]
 crate_loop = 0
+k_list_loop = 0
 freq_loop = 0
 score = 0
 health = 3
@@ -35,6 +36,8 @@ line8_surf = label_font.render(f"Space to start", True, 'Black' )
 #Ship image and rect
 ship_surf = pygame.image.load('graphics/ship/pship.png').convert_alpha()
 ship_rect = ship_surf.get_rect(midbottom = (400, 350))
+p_surf = pygame.image.load('graphics/enemy/cb.png').convert_alpha()
+p_rect = p_surf.get_rect(center = (ship_rect.x, ship_rect.y) )
 
 #crate image and rect
 crate_surf = pygame.image.load('graphics/help/crate.png').convert_alpha()
@@ -59,7 +62,8 @@ rk_rect = rk_surf.get_rect(midbottom = (100, 375))
 
 #enemy logic
 enemy_timer = pygame.USEREVENT + 1
-pygame.time.set_timer(enemy_timer, 1000)
+ct = int((pygame.time.get_ticks() - start_time)/ 1000)
+pygame.time.set_timer(enemy_timer, int(10000/(ct+1)))
 
 cb_rect_list = []
 k_rect_list = []
@@ -82,16 +86,18 @@ def cb_movement(cb_list):
         return []
 
 def k_movement(k_list):
-    ct = int((pygame.time.get_ticks() - start_time)/ 1000)
     if k_list:
         for k_rect in k_list:
-            if k_rect.left > ship_rect.x:
+            if k_rect.x > ship_rect.x:
                 k_rect.x -= 4
                 screen.blit(k_surf, k_rect)
-            else:
-                k_rect.x += 4
-                screen.blit(rk_surf, rk_rect)
             k_list = [k for k in k_list if ship_rect.colliderect(k) == False]
+        
+        for rk_rect in k_list:
+            if rk_rect.x < ship_rect.x:
+                rk_rect.x += 4
+                screen.blit(rk_surf, rk_rect)
+            k_list = [rk for rk in k_list if ship_rect.colliderect(rk) == False]
 
         return k_list
     else:
@@ -153,10 +159,15 @@ while running:
                     print('fire')
             if event.type == enemy_timer:
                 cb_rect_list.append(cb_surf.get_rect(midbottom = (randint(25, 775), randint(-200, -30))))
-                if randint(0,2):
-                    k_rect_list.append(k_surf.get_rect(midbottom = (randint(1200, 1800), 375)))
+                if k_list_loop == 10:
+                    k_list_loop = 0
+                    if randint(0,2):
+                        k_rect_list.append(rk_surf.get_rect(midbottom = (-300, 375)))
+                    else:
+                        k_rect_list.append(k_surf.get_rect(midbottom = (1000, 375)))
                 else:
-                    k_rect_list.append(rk_surf.get_rect(midbottom = (randint(-1000, -300), 375)))
+                    k_list_loop += 1
+                print(k_list_loop)
         else:
             #game start
             if event.type == pygame.KEYDOWN:
