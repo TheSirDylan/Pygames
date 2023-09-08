@@ -54,7 +54,7 @@ rp_rect = rp_surf.get_rect(center = (ship_rect.x, ship_rect.y) )
 #crate image and rect
 crate_surf = pygame.image.load('graphics/help/crate.png').convert_alpha()
 crate_rect = crate_surf.get_rect(midbottom = (randint(25,775), -50))
-
+crate_sound = pygame.mixer.Sound('audio/powerUp.wav')
 
 
 #enemy images and rects
@@ -169,6 +169,7 @@ def scored():
     score_text_surf = test_font.render(f'Score: {score}', False, 'Black' )
     if ship_rect.colliderect(crate_rect): 
             score += 5
+            crate_sound.play(loops = 0)
             crate_rect.y = 500
     screen.blit(score_text_surf, (40,25))
 
