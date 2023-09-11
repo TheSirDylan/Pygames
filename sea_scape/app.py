@@ -35,7 +35,7 @@ pygame.init()
 
 #Set pygame display size + Font
 screen = pygame.display.set_mode((800, 450))
-pygame.display.set_caption("The Game of Games")
+pygame.display.set_caption("Sea Scape")
 clock = pygame.time.Clock()
 test_font = pygame.font.Font('font/Daydream_3/Daydream.ttf', 10)
 small_font = pygame.font.Font(None, 25)
